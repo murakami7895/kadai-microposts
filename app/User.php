@@ -96,4 +96,54 @@ class User extends Model implements AuthenticatableContract,
         $follow_user_ids[] = $this->id;
         return Micropost::whereIn('user_id', $follow_user_ids);
     }
+    
+    
+    
+    
+  
+    public function favaritings()
+    {
+        return $this->belongsToMany(User::class, 'user_favarite', 'user_id', 'micropost_id')->withTimestamps();
+    }
+    
+    public function favarite($userId)
+    {
+        // 既にお気に入り登録しているかの確認
+        $exist = $this->is_favariting($userId);
+        // 自分自身ではないかの確認
+        $its_me = $this->id == $userId;
+        
+        if ($exist || $its_me) {
+            // 既にお気に入り登録していれば何もしない
+            return false;
+        } else {
+            // お気に入り未登録であればお気に入り登録する
+            $this->favaritings()->attach($userId);
+            return true;
+        }
+    }
+    
+    public function unfavarite($userId)
+    {
+        // 既にお気に入り登録しているかの確認
+        $exist = $this->is_favariting($userId);
+        // 自分自身ではないかの確認
+        $its_me = $this->id == $userId;
+        
+        if ($exist && !$its_me) {
+            // 既にお気に入り登録していればお気に入り登録を外す
+            $this->favaritings()->detach($userId);
+            return true;
+        } else {
+            // お気に入り未登録であれば何もしない
+            return false;
+        }
+    }
+    
+    public function is_favariting($userId) {
+        return $this->favaritings()->where('micropost_id', $userId)->exists();
+    }
 }
+
+
+

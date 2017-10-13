@@ -65,4 +65,18 @@ class UsersController extends Controller
         
         return view('users.followers', $data);
     }
+    
+    public function favaritings($id)
+    {
+        //dd('id=' . $id);
+        $user = User::find($id);
+        $favaritings = $user->favaritings()->paginate(10);
+        
+        $data = [
+            'user' => $user,
+            'users' => $favaritings,
+        ];
+        
+        return view('users.favaritings', $data);
+    }
 }
